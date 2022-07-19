@@ -18,13 +18,16 @@ public class FacultyController {
     }
 
     @PostMapping
-    public ResponseEntity createFaculty(@RequestBody Faculty faculty) {
+    public ResponseEntity<Faculty> createFaculty(@RequestBody Faculty faculty) {
         Faculty createdFaculty = facultyService.createFaculty(faculty);
+        if (createdFaculty == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(createdFaculty);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity findFaculty(@PathVariable long id) {
+    public ResponseEntity<Faculty> findFaculty(@PathVariable long id) {
         Faculty foundFaculty = facultyService.findFaculty(id);
         if (foundFaculty == null) {
             return ResponseEntity.notFound().build();
@@ -33,7 +36,7 @@ public class FacultyController {
     }
 
     @GetMapping("filter/{neededColor}")
-    public ResponseEntity getFacultyByColor(@PathVariable String neededColor) {
+    public ResponseEntity<Collection<Faculty>> getFacultyByColor(@PathVariable String neededColor) {
         Collection<Faculty> filteredFaculties = facultyService.getFacultiesByColor(neededColor);
         if (filteredFaculties.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -42,13 +45,16 @@ public class FacultyController {
     }
 
     @PutMapping
-    public ResponseEntity editFaculty(@RequestBody Faculty faculty) {
+    public ResponseEntity<Faculty> editFaculty(@RequestBody Faculty faculty) {
         Faculty editedFaculty = facultyService.editFaculty(faculty);
+        if (editedFaculty == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(editedFaculty);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity deleteFaculty(@PathVariable long id) {
+    public ResponseEntity<Faculty> deleteFaculty(@PathVariable long id) {
         Faculty deletedFaculty = facultyService.deleteFaculty(id);
         if (deletedFaculty == null) {
             return ResponseEntity.notFound().build();
