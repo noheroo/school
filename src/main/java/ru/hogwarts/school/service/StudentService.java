@@ -2,60 +2,39 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
 
-    private final HashMap<Long, Student> students = new HashMap<>();
-    private long studentCounter = 0;
+    private StudentRepository studentRepository;
 
-    public Student createStudent(Student student) {
-        if (findDoubleStudent(student)) {
-            return null;
-        }
-        student.setId(++studentCounter);
-        students.put(student.getId(), student);
-        return student;
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
+
+    public StudentService() {}
+
+    public Student addStudent(Student student) {
+        return studentRepository.save(student);
     }
 
     public Student findStudent(long id) {
-        if (!students.containsKey(id)) {
-            return null;
-        }
-        return students.get(id);
+        return studentRepository.findById(id).get();
     }
 
     public Student editStudent(Student student) {
-        if (!students.containsKey(student.getId())) {
-            return null;
-        }
-        return students.put(student.getId(), student);
+        return studentRepository.save(student);
     }
 
-    public Student deleteStudent(long id) {
-        if (!students.containsKey(id)) {
-            return null;
-        }
-        return students.remove(id);
+    public void deleteStudent(long id) {
+        studentRepository.deleteById(id);
     }
 
-    public Collection<Student> getStudentsByAge(int neededAge) {
-        if (neededAge < 0) {
-            return Collections.emptyList();
-        }
-        return students.values().stream()
-                .filter(e -> e.getAge() == neededAge)
-                .collect(Collectors.toList());
+    public Collection<Student> findByAge(int neededAge) {
+        return studentRepository.findByAge(neededAge);
     }
 
-    private boolean findDoubleStudent(Student student) {
-        return students.values().stream()
-                .filter(e -> e.getName().equalsIgnoreCase(student.getName()))
-                .anyMatch(e -> e.getAge() == student.getAge());
-    }
 }
