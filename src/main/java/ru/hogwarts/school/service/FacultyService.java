@@ -2,60 +2,37 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repository.FacultyRepository;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
 
-    private final HashMap<Long, Faculty> faculties = new HashMap<>();
-    private long facultyCounter = 0;
+    private final FacultyRepository facultyRepository;
 
-    public Faculty createFaculty(Faculty faculty) {
-        if (findDoubleFaculty(faculty)) {
-            return null;
-        }
-        faculty.setId(++facultyCounter);
-        faculties.put(faculty.getId(), faculty);
-        return faculty;
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
+    }
+
+    public Faculty addFaculty(Faculty faculty) {
+        return facultyRepository.save(faculty);
     }
 
     public Faculty findFaculty(long id) {
-        if (!faculties.containsKey(id)) {
-            return null;
-        }
-        return faculties.get(id);
+        return facultyRepository.findById(id).get();
     }
 
     public Faculty editFaculty(Faculty faculty) {
-        if (!faculties.containsKey(faculty.getId())) {
-            return null;
-        }
-        return faculties.put(faculty.getId(), faculty);
+        return facultyRepository.save(faculty);
     }
 
-    public Faculty deleteFaculty(long id) {
-        if (!faculties.containsKey(id)) {
-            return null;
-        }
-        return faculties.remove(id);
+    public void deleteFaculty(long id) {
+        facultyRepository.deleteById(id);
     }
 
-    public Collection<Faculty> getFacultiesByColor(String neededColor) {
-        if (neededColor.isBlank()) {
-            return Collections.emptyList();
-        }
-        return faculties.values().stream()
-                .filter(e -> e.getColor().equalsIgnoreCase(neededColor))
-                .collect(Collectors.toList());
+    public Collection<Faculty> findByColor(String neededColor) {
+        return facultyRepository.findByColor(neededColor);
     }
 
-    private boolean findDoubleFaculty(Faculty faculty) {
-        return faculties.values().stream()
-                .filter(e -> e.getName().equalsIgnoreCase(faculty.getName()))
-                .anyMatch(e -> e.getColor().equalsIgnoreCase(faculty.getColor()));
-    }
 }
